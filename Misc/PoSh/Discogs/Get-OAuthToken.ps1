@@ -22,27 +22,27 @@ $AuthChunks = [Ordered]@{
     oauth_signature            = $AppSecret + '&'
     oauth_signature_method     = 'PLAINTEXT'
     oauth_timestamp            = $([DateTimeOffset]::Now.ToUnixTimeSeconds())
-}
+} # Auth chunks
 
 $AuthString = $null
 
 foreach ($Chunk in $AuthChunks.GetEnumerator())
 {
     $AuthString += $Chunk.Key + '="' + $Chunk.Value + '", '
-}
+} # foreach
 
 $AuthString = $AuthString.TrimEnd(', ')
 
 $Header = @{
     Authorization = $AuthString
     'User-Agent'  = $AppName
-}
+} # Header
 
 $GetParams = $CommonParams + @{
     Headers = $Header
     Method  = 'GET'
     Uri     = 'https://api.discogs.com/oauth/request_token'
-}
+} # Get params
 
 $AATString = Invoke-RestMethod @GetParams
 
@@ -66,14 +66,14 @@ $AuthChunks = [Ordered]@{
     oauth_signature_method     = 'PLAINTEXT'
     oauth_timestamp            = $([DateTimeOffset]::Now.ToUnixTimeSeconds())
     oauth_verifier             = $VerifierCode
-}
+} # Auth chunks
 
 $AuthString = $null
 
 foreach ($Chunk in $AuthChunks.GetEnumerator())
 {
     $AuthString += $Chunk.Key + '="' + $Chunk.Value + '", '
-}
+} # foreach
 
 $AuthString = $AuthString.TrimEnd(', ')
 
@@ -81,15 +81,15 @@ $Header = @{
     'Content-Type' = 'application/x-www-form-urlencoded'
     Authorization  = $AuthString
     'User-Agent'   = $AppName
-}
+} # #Header
 
 $PostParams = $CommonParams + @{
     Headers = $Header
     Method  = 'POST'
     Uri     = 'https://api.discogs.com/oauth/access_token'
-}
+} # PostParams
 
-$FinalAATString = Invoke-RestMethod @RequestParams
+$FinalAATString = Invoke-RestMethod @PostParams
 
 
 ### SEND AUTHENTICATED REQUESTS TO DISCOGS ENDPOINTS
@@ -106,26 +106,26 @@ $AuthChunks = [Ordered]@{
     oauth_signature            = $AppSecret + '&' + $FinalAATSecret
     oauth_signature_method     = 'PLAINTEXT'
     oauth_timestamp            = $([DateTimeOffset]::Now.ToUnixTimeSeconds())
-}
+} # Auth chunks
 
 $AuthString = $null
 
 foreach ($Chunk in $AuthChunks.GetEnumerator())
 {
     $AuthString += $Chunk.Key + '="' + $Chunk.Value + '", '
-}
+} # foreach
 
 $AuthString = $AuthString.TrimEnd(', ')
 
 $Header = @{
     Authorization  = $AuthString
-}
+} # Header
 
 $OAuthTestParams = $CommonParams + @{
     Header = $Header
     Method = 'GET'
     Uri    = 'https://api.discogs.com/oauth/identity'
-}
+} #OAuth test params
 
 Invoke-RestMethod @OAuthTestParams
 
